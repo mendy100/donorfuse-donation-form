@@ -252,26 +252,19 @@
     }
 
     .card-icon {
-      width: 44px;
-      height: 28px;
+      height: 32px;
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.3px;
+      overflow: hidden;
     }
 
-    .card-visa { background: #1a1f71; }
-    .card-mc { background: linear-gradient(135deg, #eb001b 0%, #f79e1b 100%); }
-    .card-discover { background: #ff6600; }
-    .card-amex { background: #2e77bc; }
-    .card-ojc { background: #d4a843; font-size: 8px; }
-    .card-matbia { background: #2a9d8f; }
-    .card-pledger { background: #6c63ff; font-size: 8px; }
-    .card-imaaser { background: #e63946; font-size: 7px; }
+    .card-icon img {
+      height: 32px;
+      width: auto;
+      display: block;
+    }
 
     .payment-fields-row {
       display: grid;
@@ -558,14 +551,22 @@
           <h2 class="section-heading">Payment Information</h2>
 
           <div class="card-icons">
-            <div class="card-icon card-visa">VISA</div>
-            <div class="card-icon card-mc">MC</div>
-            <div class="card-icon card-discover">DISC</div>
-            <div class="card-icon card-amex">AMEX</div>
-            <div class="card-icon card-ojc">OJC</div>
-            <div class="card-icon card-matbia"><svg viewBox="0 0 24 24" width="18" height="18" fill="white"><circle cx="12" cy="12" r="8" fill="none" stroke="white" stroke-width="2"/><path d="M12 6v12M6 12h12" stroke="white" stroke-width="2"/></svg></div>
-            <div class="card-icon card-pledger">Pledger</div>
-            <div class="card-icon card-imaaser">iMaaser</div>
+            <!-- Visa -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><path d="M19.5 21h-2.8l1.8-11h2.8l-1.8 11zm11.7-10.7c-.6-.2-1.4-.4-2.5-.4-2.8 0-4.7 1.5-4.7 3.6 0 1.6 1.4 2.4 2.5 3 1.1.5 1.5.9 1.5 1.4 0 .7-.9 1.1-1.7 1.1-1.2 0-1.8-.2-2.7-.6l-.4-.2-.4 2.5c.7.3 1.9.6 3.2.6 2.9 0 4.9-1.5 4.9-3.7 0-1.2-.7-2.2-2.4-3-.9-.5-1.5-.8-1.5-1.3 0-.4.5-.9 1.5-.9.9 0 1.5.2 2 .4l.2.1.5-2.5zm7.2-.3h-2.2c-.7 0-1.2.2-1.5.9l-4.2 10.1h2.9l.6-1.6h3.6l.3 1.6h2.6l-2.1-11zm-3.5 7.1l1.5-4 .8 4h-2.3zM17 10h-4.4l0 .2c3.4.9 5.7 3 6.6 5.5l-1-4.8c-.2-.7-.7-.9-1.2-.9z" fill="#fff"/></svg></div>
+            <!-- Mastercard -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#252525"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b"/><path d="M24 9.2a9 9 0 0 1 0 13.6 9 9 0 0 0 0-13.6z" fill="#ff5f00"/></svg></div>
+            <!-- Discover -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f4f4f4" stroke="#ccc" stroke-width=".5"/><circle cx="28" cy="16" r="7" fill="#f76b1c"/><text x="14" y="19" font-size="7" font-weight="700" fill="#333" font-family="Arial,sans-serif">DISC</text><text x="27" y="19" font-size="7" font-weight="700" fill="#fff" font-family="Arial,sans-serif">VER</text></svg></div>
+            <!-- Amex -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#2e77bc"/><text x="24" y="14" text-anchor="middle" font-size="6" font-weight="700" fill="#fff" font-family="Arial,sans-serif">AMERICAN</text><text x="24" y="22" text-anchor="middle" font-size="6" font-weight="700" fill="#fff" font-family="Arial,sans-serif">EXPRESS</text></svg></div>
+            <!-- OJC -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f4f4f4" stroke="#ccc" stroke-width=".5"/><text x="11" y="20" font-size="11" font-weight="700" fill="#c8960e" font-family="Arial,sans-serif">OJC</text><text x="35" y="14" font-size="4" fill="#888" font-family="Arial,sans-serif">&#x2022;</text></svg></div>
+            <!-- Donors Fund -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a6b5a"/><path d="M18 11a7 7 0 0 1 12 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M30 21a7 7 0 0 1-12 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M18 11v3m12-3v3m-12 4v3m12-3v3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><text x="24" y="30" text-anchor="middle" font-size="4" fill="#fff" font-family="Arial,sans-serif">Donors Fund</text></svg></div>
+            <!-- Pledger -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f4f4f4" stroke="#ccc" stroke-width=".5"/><text x="24" y="19" text-anchor="middle" font-size="8" font-weight="700" fill="#5b4fc4" font-family="Arial,sans-serif">Pledger</text></svg></div>
+            <!-- iMaaser -->
+            <div class="card-icon"><svg width="48" height="32" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a237e"/><text x="24" y="14" text-anchor="middle" font-size="5" fill="#fff" font-family="Arial,sans-serif">&#x2665;</text><text x="24" y="24" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="Arial,sans-serif">iMaaser</text></svg></div>
           </div>
 
           <div class="field">
