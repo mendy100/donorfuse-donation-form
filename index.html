@@ -551,16 +551,14 @@
           <h2 class="section-heading">Payment Information</h2>
 
           <div class="card-icons">
-            <!-- Visa -->
-            <div class="card-icon"><svg width="56" height="36" viewBox="0 0 56 36"><rect width="56" height="36" rx="5" fill="#1434CB"/><text x="28" y="23" text-anchor="middle" font-size="16" font-weight="700" font-style="italic" fill="#fff" font-family="Arial,sans-serif">VISA</text></svg></div>
-            <!-- Mastercard -->
-            <div class="card-icon"><svg width="56" height="36" viewBox="0 0 56 36"><rect width="56" height="36" rx="5" fill="#1a1a2e"/><circle cx="22" cy="18" r="10" fill="#eb001b"/><circle cx="34" cy="18" r="10" fill="#f79e1b"/><path d="M28 10.5a10 10 0 0 1 0 15 10 10 0 0 0 0-15z" fill="#ff5f00"/></svg></div>
-            <!-- Discover -->
-            <div class="card-icon"><svg width="56" height="36" viewBox="0 0 56 36"><rect width="56" height="36" rx="5" fill="#fff" stroke="#ddd" stroke-width="1"/><text x="8" y="22" font-size="9" font-weight="700" fill="#333" font-family="Arial,sans-serif">DISC</text><circle cx="38" cy="18" r="8" fill="#f76b1c"/><text x="33" y="22" font-size="9" font-weight="700" fill="#fff" font-family="Arial,sans-serif">VER</text></svg></div>
-            <!-- Amex -->
-            <div class="card-icon"><svg width="56" height="36" viewBox="0 0 56 36"><rect width="56" height="36" rx="5" fill="#2681D3"/><text x="28" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Arial,sans-serif">AMEX</text></svg></div>
-            <!-- OJC Fund -->
-            <div class="card-icon"><svg width="56" height="36" viewBox="0 0 56 36"><rect width="56" height="36" rx="5" fill="#fff" stroke="#ddd" stroke-width="1"/><text x="28" y="21" text-anchor="middle" font-size="16" font-weight="700" fill="#4A9FE5" font-family="Arial,sans-serif">OJC</text><text x="28" y="31" text-anchor="middle" font-size="7" font-weight="400" fill="#888" font-family="Arial,sans-serif">FUND</text></svg></div>
+            <div class="card-icon"><img src="images/visa.png" alt="Visa"></div>
+            <div class="card-icon"><img src="images/master.png" alt="Mastercard"></div>
+            <div class="card-icon"><img src="images/discover.png" alt="Discover"></div>
+            <div class="card-icon"><img src="images/amex.png" alt="Amex"></div>
+            <div class="card-icon"><img src="images/ojc.png" alt="OJC Fund"></div>
+            <div class="card-icon"><img src="images/matbia.png" alt="Matbia"></div>
+            <div class="card-icon"><img src="images/tdf.png" alt="Donors Fund"></div>
+            <div class="card-icon"><img src="images/pledger.png" alt="Pledger"></div>
           </div>
 
           <div class="field">
@@ -618,6 +616,33 @@
 <div style="display:none;"><div id="expDateId"></div></div>
 
 <script>
+  // ---- ERROR LOGGING ----
+  console.log('=== DONATION FORM LOADING ===');
+  console.log('Page URL:', window.location.href);
+  console.log('Timestamp:', new Date().toISOString());
+
+  // Log all image load errors
+  document.querySelectorAll('.card-icon img').forEach(img => {
+    img.addEventListener('load', () => console.log('[IMG OK]', img.alt, img.src));
+    img.addEventListener('error', () => console.error('[IMG FAIL]', img.alt, img.src));
+  });
+
+  // Log script load status
+  window.addEventListener('load', () => {
+    console.log('[SCRIPT] BasisTheory loaded:', typeof BasisTheory !== 'undefined');
+    console.log('[SCRIPT] DonorFuseHostedClient loaded:', typeof DonorFuseHostedClient !== 'undefined');
+    console.log('[SCRIPT] hcaptcha loaded:', typeof hcaptcha !== 'undefined');
+  });
+
+  // Global error handler
+  window.addEventListener('error', (e) => {
+    console.error('[GLOBAL ERROR]', e.message, 'at', e.filename, 'line', e.lineno);
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('[UNHANDLED PROMISE]', e.reason);
+  });
+
   // ---- Amount selection ----
   const amountRadios = document.querySelectorAll('input[name="amount"]');
   const otherInput = document.getElementById('otherAmountInput');
@@ -651,13 +676,19 @@
     cvvFieldId: 'cvvId'
   };
 
+  console.log('[INIT] Setting up hosted form with options:', JSON.stringify(hostedOptions));
   setTimeout(() => {
     if (typeof DonorFuseHostedClient !== 'undefined') {
-      DonorFuseHostedClient.Init(hostedOptions, () => {
-        console.log('Donor Fuse hosted form ready');
-      });
+      console.log('[INIT] DonorFuseHostedClient found, calling Init...');
+      try {
+        DonorFuseHostedClient.Init(hostedOptions, () => {
+          console.log('[INIT] Hosted form READY - card fields initialized');
+        });
+      } catch (e) {
+        console.error('[INIT ERROR]', e.message, e.stack);
+      }
     } else {
-      console.warn('DonorFuseHostedClient not loaded');
+      console.error('[INIT FAIL] DonorFuseHostedClient is NOT defined. Check script loading.');
     }
   }, 300);
 
@@ -688,8 +719,9 @@
       return;
     }
 
+    console.log('[PAYMENT] Calling GenerateToken...');
     DonorFuseHostedClient.GenerateToken((response) => {
-      console.log('Token response:', response);
+      console.log('[PAYMENT] Token response:', JSON.stringify(response));
 
       if (response.success) {
         const nameParts = name.split(' ');
@@ -733,6 +765,9 @@
           }
         }
 
+        console.log('[PAYMENT] Donation object:', JSON.stringify(donation));
+        console.log('[PAYMENT] POSTing to Donor Fuse API...');
+
         // POST to Donor Fuse API
         fetch('https://api.donorfuse.com/api/Integrations/Donations/process', {
           method: 'POST',
@@ -744,7 +779,7 @@
         })
         .then(res => res.json())
         .then(data => {
-          console.log('API response:', data);
+          console.log('[PAYMENT] API response:', JSON.stringify(data));
           if (data.success || data.Success) {
             statusMsg.textContent = 'Thank you! Your donation has been processed successfully.';
             statusMsg.className = 'status-msg success';
@@ -754,7 +789,7 @@
           resetButton();
         })
         .catch(err => {
-          console.error('API error:', err);
+          console.error('[PAYMENT] API fetch error:', err.message, err);
           showError('Network error. Please try again.');
           resetButton();
         });
