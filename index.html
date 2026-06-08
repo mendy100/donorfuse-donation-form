@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donation Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://js.basistheory.com/web-elements/2.9.0/index.js"
+          integrity="sha384-wmu8CwhrvCHCqTiSWYh8A/1fd1TwPiM5h5X7pQlLhfyb1op8euEb2Z7wJqN5XXt2"
+          crossorigin="anonymous"></script>
+  <script src="https://donate.donorfuse.com/assets/hosted.js"></script>
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #e8a317;
+      --gold-border: #e0a620;
+      --navy: #1a3a5c;
+      --text: #333;
+      --light-gray: #f0f0f0;
+      --border-gray: #ccc;
+      --white: #fff;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--white);
+      min-height: 100vh;
+    }
+
+    .form-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 30px;
+    }
+
+    /* ---- Two-column layout ---- */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: start;
+    }
+
+    /* ---- Section headings ---- */
+    .section-heading {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 24px;
+    }
+
+    /* ---- Fieldset-style inputs (legend on border) ---- */
+    .field {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      position: absolute;
+      top: -9px;
+      left: 12px;
+      background: var(--white);
+      padding: 0 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      z-index: 1;
+    }
+
+    .field label .req {
+      color: #e05a00;
+      margin-left: 2px;
+    }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="tel"],
+    .field input[type="number"],
+    .field select {
+      width: 100%;
+      height: 50px;
+      padding: 12px 14px;
+      border: 2px solid var(--gold-border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Open Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--navy);
+    }
+
+    .field select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    /* ---- Donation Amount fieldset ---- */
+    .amount-fieldset {
+      border: 2px solid var(--gold-border);
+      border-radius: 6px;
+      padding: 20px 18px 14px;
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .amount-fieldset legend {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      padding: 0 6px;
+    }
+
+    .amount-fieldset legend .req {
+      color: #e05a00;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .radio-option input[type="radio"] {
+      margin-top: 3px;
+      accent-color: #1a8a5c;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .radio-option span {
+      cursor: pointer;
+    }
+
+    /* Other amount inline */
+    .other-amount-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+    }
+
+    .other-amount-row input[type="radio"] {
+      margin-top: 0;
+      accent-color: #1a8a5c;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .other-amount-row input[type="number"] {
+      width: 120px;
+      height: 36px;
+      padding: 6px 10px;
+      border: 2px solid var(--gold-border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Open Sans', sans-serif;
+      outline: none;
+    }
+
+    .other-amount-row input[type="number"]:focus {
+      border-color: var(--navy);
+    }
+
+    /* ---- Recurring section ---- */
+    .recurring-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .recurring-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #1a8a5c;
+      cursor: pointer;
+    }
+
+    .recurring-fields {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .recurring-fields .field {
+      margin-bottom: 0;
+      flex: 0 0 auto;
+    }
+
+    .recurring-fields .field input,
+    .recurring-fields .field select {
+      width: 140px;
+      height: 50px;
+    }
+
+    .total-payments-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .total-payments-row .field {
+      margin-bottom: 0;
+    }
+
+    .total-payments-row .field input {
+      width: 70px;
+      height: 44px;
+      text-align: center;
+      background: var(--light-gray);
+    }
+
+    /* ---- Payment Information ---- */
+    .payment-section {
+      margin-top: 10px;
+    }
+
+    .card-icons {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+
+    .card-visa { background: #1a1f71; }
+    .card-mc { background: linear-gradient(135deg, #eb001b 0%, #f79e1b 100%); }
+    .card-discover { background: #ff6600; }
+    .card-amex { background: #2e77bc; }
+    .card-ojc { background: #d4a843; font-size: 8px; }
+    .card-matbia { background: #2a9d8f; }
+    .card-pledger { background: #6c63ff; font-size: 8px; }
+    .card-imaaser { background: #e63946; font-size: 7px; }
+
+    .payment-fields-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .payment-fields-row .field select,
+    .payment-fields-row .field input {
+      width: 100%;
+    }
+
+    /* Hosted card field containers */
+    .hosted-field-wrp {
+      width: 100%;
+      height: 50px;
+      padding: 0 14px;
+      border: 2px solid var(--gold-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .hosted-field-wrp > div {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hosted-field-wrp:focus-within {
+      border-color: var(--navy);
+    }
+
+    /* ---- hCaptcha ---- */
+    .captcha-wrapper {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ---- Submit button ---- */
+    .submit-btn {
+      display: block;
+      width: 100%;
+      max-width: 480px;
+      margin: 30px auto 0;
+      height: 52px;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Open Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #d4960f;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ---- CVV tooltip ---- */
+    .cvv-label-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cvv-tooltip {
+      width: 16px;
+      height: 16px;
+      background: #5bc0de;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      position: relative;
+    }
+
+    .cvv-tooltip:hover::after {
+      content: '3 or 4 digit security code on your card';
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 400;
+      padding: 6px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    /* ---- Status message ---- */
+    .status-msg {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .status-msg.error { color: #c0392b; }
+    .status-msg.success { color: #27ae60; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .payment-fields-row {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .submit-btn {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .payment-fields-row {
+        grid-template-columns: 1fr;
+      }
+
+      .recurring-fields .field input,
+      .recurring-fields .field select {
+        width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <form id="donationForm" onsubmit="return false;">
+    <div class="form-grid">
+
+      <!-- ========== LEFT COLUMN ========== -->
+      <div class="left-col">
+        <h2 class="section-heading">Donation Information</h2>
+
+        <div class="field">
+          <label>Name <span class="req">*</span></label>
+          <input type="text" id="donorName" required>
+        </div>
+
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="donorEmail" required>
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="donorPhone">
+        </div>
+
+        <div class="field">
+          <label>Address</label>
+          <input type="text" id="donorAddress">
+        </div>
+
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="donorCity">
+        </div>
+
+        <div class="field">
+          <label>State</label>
+          <select id="donorState">
+            <option value=""></option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+            <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+            <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+            <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+            <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+            <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+            <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+            <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+            <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+            <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+            <option>WI</option><option>WY</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Zip <span class="req">*</span></label>
+          <input type="text" id="donorZip" required>
+        </div>
+      </div>
+
+      <!-- ========== RIGHT COLUMN ========== -->
+      <div class="right-col">
+        <h2 class="section-heading">Transaction Details</h2>
+
+        <!-- Donation Amounts -->
+        <fieldset class="amount-fieldset">
+          <legend>Donation Amount <span class="req">*</span></legend>
+
+          <label class="radio-option">
+            <input type="radio" name="amount" value="18000">
+            <span>SHABBOS ON THE FALLS - $18,000 - Annual Shabbaton in Niagara</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="10000">
+            <span>SONG &amp; SOUL SUMMIT - $10,000 - Event for couples with singers, speakers and Q&amp;A</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="7200">
+            <span>THE KIVISI COVE - $7,200 - A haven of relaxation and friendship in Boro Park</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="5400">
+            <span>KIVISI EMBRACE KIT - $5,400 - Post-diagnosis generous support package</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="3600">
+            <span>COUPLE'S ESCAPE - $3,600 - All-inclusive getaway in Miami for a couple</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="2500">
+            <span>RETAIL RENDEZVOUS - $2,500 - Ladies' indulgent shopperama</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="1800">
+            <span>DINE &amp; UNWIND - $1,800 - Separate gala nights out for women and men</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="amount" value="720">
+            <span>HEALING HEARTS - $720 - Therapy and coaching for a couple</span>
+          </label>
+          <div class="other-amount-row">
+            <input type="radio" name="amount" value="other" id="amountOther">
+            <span>Other</span>
+            <input type="number" id="otherAmountInput" min="1" step="0.01" placeholder="$">
+          </div>
+        </fieldset>
+
+        <!-- Recurring -->
+        <div class="recurring-row">
+          <input type="checkbox" id="recurringCheck">
+          <label for="recurringCheck" style="font-weight:600; cursor:pointer;">Make this a recurring transaction</label>
+        </div>
+
+        <div class="recurring-fields">
+          <div class="field">
+            <label>Every</label>
+            <input type="number" id="recurringEvery" value="1" min="1">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <select id="recurringPeriod">
+              <option value="Monthly">Month(s)</option>
+              <option value="Weekly">Week(s)</option>
+              <option value="Yearly">Year(s)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="total-payments-row">
+          <span>For a total of</span>
+          <div class="field">
+            <input type="number" id="totalPayments" value="" min="1" placeholder="*" style="background:#eee;">
+          </div>
+          <span>payments</span>
+        </div>
+
+        <!-- Payment Information -->
+        <div class="payment-section">
+          <h2 class="section-heading">Payment Information</h2>
+
+          <div class="card-icons">
+            <div class="card-icon card-visa">VISA</div>
+            <div class="card-icon card-mc">MC</div>
+            <div class="card-icon card-discover">DISC</div>
+            <div class="card-icon card-amex">AMEX</div>
+            <div class="card-icon card-ojc">OJC</div>
+            <div class="card-icon card-matbia"><svg viewBox="0 0 24 24" width="18" height="18" fill="white"><circle cx="12" cy="12" r="8" fill="none" stroke="white" stroke-width="2"/><path d="M12 6v12M6 12h12" stroke="white" stroke-width="2"/></svg></div>
+            <div class="card-icon card-pledger">Pledger</div>
+            <div class="card-icon card-imaaser">iMaaser</div>
+          </div>
+
+          <div class="field">
+            <label>Card Number <span class="req">*</span></label>
+            <div class="hosted-field-wrp">
+              <div id="CrecitCardNumberId"></div>
+            </div>
+          </div>
+
+          <div class="payment-fields-row">
+            <div class="field">
+              <label>MM <span class="req">*</span></label>
+              <select id="expMonth" required>
+                <option value=""></option>
+                <option>01</option><option>02</option><option>03</option><option>04</option>
+                <option>05</option><option>06</option><option>07</option><option>08</option>
+                <option>09</option><option>10</option><option>11</option><option>12</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>YY <span class="req">*</span></label>
+              <select id="expYear" required>
+                <option value=""></option>
+                <option>25</option><option>26</option><option>27</option><option>28</option>
+                <option>29</option><option>30</option><option>31</option><option>32</option>
+                <option>33</option><option>34</option><option>35</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><span class="cvv-label-row">CVV <span class="cvv-tooltip">i</span> <span class="req">*</span></span></label>
+              <div class="hosted-field-wrp">
+                <div id="cvvId"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- hCaptcha -->
+        <div class="captcha-wrapper">
+          <div class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000001"></div>
+        </div>
+
+        <!-- Submit -->
+        <button type="button" class="submit-btn" id="submitBtn" onclick="processPayment()">
+          Process Payment ($ 0.00)
+        </button>
+        <div class="status-msg" id="statusMsg"></div>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Hidden exp date host field (needed by hosted lib but we use dropdowns) -->
+<div style="display:none;"><div id="expDateId"></div></div>
+
+<script>
+  // ---- Amount selection ----
+  const amountRadios = document.querySelectorAll('input[name="amount"]');
+  const otherInput = document.getElementById('otherAmountInput');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function getSelectedAmount() {
+    const checked = document.querySelector('input[name="amount"]:checked');
+    if (!checked) return 0;
+    if (checked.value === 'other') {
+      return parseFloat(otherInput.value) || 0;
+    }
+    return parseFloat(checked.value);
+  }
+
+  function updateButtonText() {
+    const amt = getSelectedAmount();
+    submitBtn.textContent = 'Process Payment ($ ' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ')';
+  }
+
+  amountRadios.forEach(r => r.addEventListener('change', updateButtonText));
+  otherInput.addEventListener('input', () => {
+    document.getElementById('amountOther').checked = true;
+    updateButtonText();
+  });
+
+  // ---- Initialize Donor Fuse Hosted Form ----
+  var hostedOptions = {
+    publicApiKey: '4300.3Blw6t3pEkuQJwLjQjIZLw',
+    ccFieldId: 'CrecitCardNumberId',
+    expFieldId: 'expDateId',
+    cvvFieldId: 'cvvId'
+  };
+
+  setTimeout(() => {
+    if (typeof DonorFuseHostedClient !== 'undefined') {
+      DonorFuseHostedClient.Init(hostedOptions, () => {
+        console.log('Donor Fuse hosted form ready');
+      });
+    } else {
+      console.warn('DonorFuseHostedClient not loaded');
+    }
+  }, 300);
+
+  // ---- Process Payment ----
+  function processPayment() {
+    const statusMsg = document.getElementById('statusMsg');
+    statusMsg.textContent = '';
+    statusMsg.className = 'status-msg';
+
+    // Validate
+    const name = document.getElementById('donorName').value.trim();
+    const email = document.getElementById('donorEmail').value.trim();
+    const zip = document.getElementById('donorZip').value.trim();
+    const amount = getSelectedAmount();
+
+    if (!name) { showError('Name is required.'); return; }
+    if (!email) { showError('Email is required.'); return; }
+    if (!zip) { showError('Zip code is required.'); return; }
+    if (amount <= 0) { showError('Please select a donation amount.'); return; }
+
+    // Disable button
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
+
+    if (typeof DonorFuseHostedClient === 'undefined') {
+      showError('Payment system not loaded. Please refresh and try again.');
+      resetButton();
+      return;
+    }
+
+    DonorFuseHostedClient.GenerateToken((response) => {
+      console.log('Token response:', response);
+
+      if (response.success) {
+        const nameParts = name.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        const phone = document.getElementById('donorPhone').value.trim();
+        const expMonth = document.getElementById('expMonth').value;
+        const expYear = document.getElementById('expYear').value;
+        const expDate = expMonth && expYear ? expMonth + '/' + expYear : response.expDate;
+
+        const donation = {
+          Amount: amount,
+          DonorFirstName: firstName,
+          DonorLastName: lastName,
+          DonorEmail: email,
+          PaymentMethod: 'CreditCard',
+          PaymentMethodToken: response.token,
+          ExpDate: expDate,
+          IsBtToken: true,
+          isDuplicate: response.isDuplicate,
+          AddressLine1: document.getElementById('donorAddress').value.trim(),
+          City: document.getElementById('donorCity').value.trim(),
+          State: document.getElementById('donorState').value,
+          ZipCode: zip
+        };
+
+        if (phone) {
+          donation.DonorPhone = phone.replace(/\D/g, '');
+        }
+
+        // Recurring / Payment plan
+        const isRecurring = document.getElementById('recurringCheck').checked;
+        if (isRecurring) {
+          const totalPayments = parseInt(document.getElementById('totalPayments').value);
+          if (totalPayments > 1) {
+            donation.IsPaymentPlan = true;
+            donation.NumberOfMonths = totalPayments;
+            donation.PlanType = document.getElementById('recurringPeriod').value;
+          } else {
+            donation.IsRecurring = true;
+          }
+        }
+
+        // POST to Donor Fuse API
+        fetch('https://api.donorfuse.com/api/Integrations/Donations/process', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-api-key': '4300.3Blw6t3pEkuQJwLjQjIZLw'
+          },
+          body: JSON.stringify(donation)
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log('API response:', data);
+          if (data.success || data.Success) {
+            statusMsg.textContent = 'Thank you! Your donation has been processed successfully.';
+            statusMsg.className = 'status-msg success';
+          } else {
+            showError(data.message || data.Message || 'Payment failed. Please try again.');
+          }
+          resetButton();
+        })
+        .catch(err => {
+          console.error('API error:', err);
+          showError('Network error. Please try again.');
+          resetButton();
+        });
+
+      } else {
+        showError(response.error || 'Could not process card. Please check your details.');
+        resetButton();
+      }
+    });
+  }
+
+  function showError(msg) {
+    const statusMsg = document.getElementById('statusMsg');
+    statusMsg.textContent = msg;
+    statusMsg.className = 'status-msg error';
+  }
+
+  function resetButton() {
+    submitBtn.disabled = false;
+    updateButtonText();
+  }
+</script>
+
+</body>
+</html>
